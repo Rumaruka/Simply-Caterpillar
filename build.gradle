@@ -1,165 +1,59 @@
 buildscript {
     repositories {
         jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
-        maven {
-            name = "Modmuss50"
-            url = "http://maven.modmuss50.me/"
-        }
+        maven { url = "https://files.minecraftforge.net/maven" }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
-        classpath 'ModsIOUpload:ModsIOUpload:+'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
     }
 }
-
-plugins {
-    id "com.matthewprenger.cursegradle" version "1.0.4"
-}
 apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'net.cazzar.gradle.modsio'
-apply plugin: 'maven'
-apply plugin: 'maven-publish'
+//Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
-allprojects {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+
+version = "1.0"
+group = "com.rumaruka.simplycaterpillar" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "Caterpillar"
+
+sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
 }
-
-version = "6.1.0"
-group= "the_fireplace.caterpillar"
-archivesBaseName = "SimplyCaterpillar-1.10.2"
 
 minecraft {
-    version = "1.10.2-12.18.2.2171"
+    version = "1.12.2-14.23.5.2796"
     runDir = "run"
-    replace '${version}', project.version
-    mappings = "stable_29"
+    
+    // the mappings can be changed at any time, and must be in the following format.
+    // snapshot_YYYYMMDD   snapshot are built nightly.
+    // stable_#            stables are built at the discretion of the MCP team.
+    // Use non-default mappings at your own risk. they may not always work.
+    // simply re-run your setup task after changing the mappings to update your workspace.
+    mappings = "snapshot_20171003"
+    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
 dependencies {
+  
+   
+
 }
 
-processResources
-{
+processResources {
+    // this will ensure that this task is redone when the versions change.
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
 
+    // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
                 
+        // replace version and mcversion
         expand 'version':project.version, 'mcversion':project.minecraft.version
     }
         
+    // copy everything else except the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
-    }
-}
-
-task showVersion {
-    description "Displays the current version"
-    group "help"
-    
-    compileJava.dependsOn showVersion
-    deobfCompileDummyTask.dependsOn showVersion
-    extractMcpMappings.dependsOn showVersion
-  
-    doLast {
-        def versionFile = new File(buildDir, '.version');
-    
-        versionFile.getParentFile().mkdirs();
-        versionFile.text = version;
-    }
-    
-    outputs.upToDateWhen { false }
-}
-
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    classifier = 'deobf'
-}
-
-artifacts {
-    archives jar
-    archives deobfJar
-    archives sourceJar
-}
-
-curseforge {
-  apiKey = project.hasProperty("curseForgeApiKey")? project.curseForgeApiKey : "empty"
-  project {
-    id = '245437'
-    changelog = file('changelog.txt')
-    releaseType = 'beta'
-    addGameVersion '1.10.2'
-	addGameVersion 'Java 8'
-    mainArtifact(jar) {
-        displayName = jar.archiveName.replace(".jar", "")
-    }
-    addArtifact(sourceJar) {
-        displayName = sourceJar.archiveName.replace(".jar", "")
-        changelog = "*This is a file for mod developers. If you don't know what to do with it, don't use it!*"
-    }
-    addArtifact(deobfJar) {
-        displayName = deobfJar.archiveName.replace(".jar", "")
-        changelog = "*This is a file for mod developers. If you don't know what to do with it, don't use it!*"
-    }
-  }
-}
-
-modsIO {
-    key = project.hasProperty("modsioApiKey")? project.modsioApiKey : "empty"
-    project{
-		artifact = new File(jar.destinationDir, archivesBaseName+"-"+version+".jar")
-		modid = "1200"
-		minecraft = "1.10.2"
-		try{changelog = file('changelog.txt').text}catch(Exception e){changelog=""}
-		tag = "beta"
-		current = true
-    }
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            if (project.hasProperty("local_maven")) {
-                repository(url: "file://${local_maven}")
-                pom {
-                    groupId = project.group
-                    version = project.version
-                    artifactId = project.archivesBaseName
-                    project {
-                        name project.archivesBaseName
-                        packaging "jar"
-                        description "Simply Caterpillar"
-                        url "https://github.com/The-Fireplace/Simply-Caterpillar"
-                        issueManagement {
-                            system "github"
-                            url "https://github.com/The-Fireplace/Simply-Caterpillar/issues"
-                        }
-                        licenses {
-                            license {
-                                name "License"
-                                url "https://github.com/The-Fireplace/Simply-Caterpillar/blob/master/LICENSE"
-                                distribution "repo"
-                            }
-                        }
-                        developers {
-                            developer {
-                                id "fireplace"
-                                name "The_Fireplace"
-                                roles {
-                                    role "owner"
-                                    role "developer"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }

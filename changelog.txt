@@ -1,2 +1,1 @@
-Drill Storage system redesigned, for a more Minecraft-y feel, as well as it actually working correctly.
-Numerous internal changes and fixes. You may want to delete your config.
+Begin ported Simply Caterpillar for 1.12.2
